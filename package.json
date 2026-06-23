@@ -1,0 +1,16 @@
+{
+  "name": "storage-app",
+  "version": "1.0.0",
+  "description": "User-friendly storage / inventory management web app with SQLite database",
+  "main": "server.js",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5"
+  }
+}
