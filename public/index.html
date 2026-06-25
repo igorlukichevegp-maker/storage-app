@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Crate — Storage Manager</title>
+<title>Склад - ГТР</title>
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -13,13 +13,15 @@
   <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="brand">
-      <span class="brand-mark">▦</span>
-      <span class="brand-name">Crate</span>
+      <span class="brand-mark" >
+        <img src="../public/res/tmh.png" alt="Logo" />
+      </span>
+      <!--span class="brand-name">Crate</span-->
     </div>
     <nav class="nav">
-      <button class="nav-btn active" data-view="dashboard">Overview</button>
-      <button class="nav-btn" data-view="inventory">Inventory</button>
-      <button class="nav-btn" data-view="settings">Categories &amp; Locations</button>
+      <button class="nav-btn active" data-view="dashboard">Обзор</button>
+      <button class="nav-btn" data-view="inventory">Склад</button>
+      <button class="nav-btn" data-view="settings">Категории и расположение</button>
     </nav>
     <div class="sidebar-foot">SQLite • local file database</div>
   </aside>
@@ -30,32 +32,32 @@
     <!-- DASHBOARD VIEW -->
     <section id="view-dashboard" class="view active">
       <header class="view-head">
-        <h1>Overview</h1>
-        <p>A quick read on what's on the shelves right now.</p>
+        <h1>ОБЗОР</h1>
+        <p>Здесь общее описание состава склада</p>
       </header>
 
       <div class="stat-row">
-        <div class="stat-card">
+        <!--div class="stat-card">
           <span class="stat-num" id="stat-items">0</span>
           <span class="stat-label">Item types</span>
-        </div>
+        </div-->
         <div class="stat-card">
           <span class="stat-num" id="stat-units">0</span>
-          <span class="stat-label">Total units in stock</span>
+          <span class="stat-label">Общее кол-во позиций на складе</span>
         </div>
         <div class="stat-card warn">
           <span class="stat-num" id="stat-low">0</span>
-          <span class="stat-label">Low on stock</span>
+          <span class="stat-label">Дефицит</span>
         </div>
         <div class="stat-card">
           <span class="stat-num" id="stat-locations">0</span>
-          <span class="stat-label">Storage locations</span>
+          <span class="stat-label">Расположение</span>
         </div>
       </div>
 
       <div class="panel">
         <div class="panel-head">
-          <h2>Needs restocking</h2>
+          <h2>Позиции на складе</h2>
         </div>
         <div id="low-stock-list" class="item-list"></div>
       </div>
@@ -65,19 +67,19 @@
     <section id="view-inventory" class="view">
       <header class="view-head row">
         <div>
-          <h1>Inventory</h1>
-          <p>Every item you're storing, in one place.</p>
+          <h1>СКЛАД</h1>
+          <p>Описание всех позиций на складе</p>
         </div>
-        <button class="btn primary" id="btn-add-item">+ Add item</button>
+        <button class="btn primary" id="btn-add-item">+ Добавить позицию</button>
       </header>
 
       <div class="toolbar">
-        <input type="search" id="search-input" placeholder="Search by name or SKU…" />
-        <select id="filter-category"><option value="">All categories</option></select>
-        <select id="filter-location"><option value="">All locations</option></select>
+        <input type="search" id="search-input" placeholder="Поиск по нименованию или номеру заказа" />
+        <select id="filter-category"><option value="">Все категории</option></select>
+        <select id="filter-location"><option value="">Все расположения</option></select>
         <label class="check">
           <input type="checkbox" id="filter-low" />
-          Low stock only
+          Только позиции в дефиците
         </label>
       </div>
 
@@ -85,42 +87,42 @@
         <table class="item-table">
           <thead>
             <tr>
-              <th>Item</th>
-              <th>SKU</th>
-              <th>Category</th>
-              <th>Location</th>
-              <th>Quantity</th>
-              <th>Status</th>
+              <th>Наименование</th>
+              <th>Номер заказа</th>
+              <th>Категория</th>
+              <th>Расположение</th>
+              <th>Количество</th>
+              <th>Статус</th>
               <th></th>
             </tr>
           </thead>
           <tbody id="items-tbody"></tbody>
         </table>
-        <p id="empty-state" class="empty-state hidden">No items match yet — add one to get started.</p>
+        <p id="empty-state" class="empty-state hidden">Нет позиций в базе данных</p>
       </div>
     </section>
 
     <!-- SETTINGS VIEW -->
     <section id="view-settings" class="view">
       <header class="view-head">
-        <h1>Categories &amp; Locations</h1>
-        <p>The labels and shelves your inventory is organized by.</p>
+        <h1>КАТЕГОРИИ И РАСПОЛОЖЕНИЯ</h1>
+        <p>Категории и места хранения. Можно создавать для собственных потребностей.</p>
       </header>
 
       <div class="settings-grid">
         <div class="panel">
-          <div class="panel-head"><h2>Categories</h2></div>
+          <div class="panel-head"><h2>Категории</h2></div>
           <form id="form-category" class="inline-form">
-            <input type="text" id="input-category" placeholder="e.g. Stationery" required />
+            <input type="text" id="input-category" placeholder="прим. ПСН" required />
             <button class="btn" type="submit">Add</button>
           </form>
           <ul id="category-list" class="tag-list"></ul>
         </div>
 
         <div class="panel">
-          <div class="panel-head"><h2>Locations</h2></div>
+          <div class="panel-head"><h2>Расположения</h2></div>
           <form id="form-location" class="inline-form">
-            <input type="text" id="input-location" placeholder="e.g. Rack 3, Bin 2" required />
+            <input type="text" id="input-location" placeholder="прим. Стеллаж 1, Коробка 2" required />
             <button class="btn" type="submit">Add</button>
           </form>
           <ul id="location-list" class="tag-list"></ul>
@@ -135,44 +137,44 @@
 <div class="modal-backdrop hidden" id="item-modal">
   <div class="modal">
     <div class="modal-head">
-      <h2 id="modal-title">Add item</h2>
+      <h2 id="modal-title">Добавить позицию</h2>
       <button class="icon-btn" id="modal-close">✕</button>
     </div>
     <form id="item-form">
       <input type="hidden" id="item-id" />
-      <label>Item name
-        <input type="text" id="item-name" required placeholder="e.g. USB-C Cable 1m" />
+      <label>Наименование
+        <input type="text" id="item-name" required placeholder="прим. USB-C Cable 1м" />
       </label>
       <div class="form-row">
-        <label>SKU (optional)
-          <input type="text" id="item-sku" placeholder="e.g. USB-C-1M" />
+        <label>Номер для заказа
+          <input type="text" id="item-sku" placeholder="прим. USB-C Cable 1м" />
         </label>
-        <label>Unit
-          <input type="text" id="item-unit" placeholder="pcs, box, kg…" value="pcs" />
+        <label>Единицы
+          <input type="text" id="item-unit" placeholder="шт, м, кг…" value="pcs" />
         </label>
       </div>
       <div class="form-row">
-        <label>Category
+        <label>Категория
           <select id="item-category"></select>
         </label>
-        <label>Location
+        <label>Расположение
           <select id="item-location"></select>
         </label>
       </div>
       <div class="form-row">
-        <label id="qty-field">Starting quantity
+        <label id="qty-field">Количиество
           <input type="number" id="item-quantity" min="0" value="0" />
         </label>
-        <label>Low-stock threshold
+        <label>Необходимый остаток
           <input type="number" id="item-min" min="0" value="0" />
         </label>
       </div>
-      <label>Notes
-        <textarea id="item-notes" rows="2" placeholder="Anything worth remembering about this item"></textarea>
+      <label>Примечания
+        <textarea id="item-notes" rows="2" placeholder="Описание позиции"></textarea>
       </label>
       <div class="modal-actions">
-        <button type="button" class="btn" id="btn-cancel">Cancel</button>
-        <button type="submit" class="btn primary" id="btn-save">Save item</button>
+        <button type="button" class="btn" id="btn-cancel">Отмена</button>
+        <button type="submit" class="btn primary" id="btn-save">Сохранить</button>
       </div>
     </form>
   </div>
@@ -182,7 +184,7 @@
 <div class="modal-backdrop hidden" id="adjust-modal">
   <div class="modal small">
     <div class="modal-head">
-      <h2>Adjust stock</h2>
+      <h2>Настроить</h2>
       <button class="icon-btn" id="adjust-close">✕</button>
     </div>
     <p class="adjust-item-name" id="adjust-item-name"></p>
@@ -191,10 +193,10 @@
       <input type="number" id="adjust-amount" value="1" min="1" />
       <button type="button" class="btn" id="btn-plus">+</button>
     </div>
-    <input type="text" id="adjust-reason" placeholder="Reason (optional) — e.g. Used on Order #102" />
+    <input type="text" id="adjust-reason" placeholder="Причина" />
     <div class="modal-actions">
-      <button type="button" class="btn" id="adjust-cancel">Cancel</button>
-      <button type="button" class="btn primary" id="adjust-confirm">Confirm</button>
+      <button type="button" class="btn" id="adjust-cancel">Отмена</button>
+      <button type="button" class="btn primary" id="adjust-confirm">Подтверждение</button>
     </div>
   </div>
 </div>

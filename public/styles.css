@@ -91,7 +91,7 @@ body {
 .view-head.row { display: flex; justify-content: space-between; align-items: flex-end; }
 
 /* STATS */
-.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+.stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; margin-bottom: 32px; }
 .stat-card {
   background: var(--paper-card);
   border: 1px solid var(--line);

@@ -11,8 +11,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-const dbFile = new DatabaseSync(path.join(__dirname, 'storage.db'));
+const dbPath = process.env.DB_PATH || path.join(__dirname, 'storage.db');
+const dbFile = new DatabaseSync(dbPath);
 dbFile.exec('PRAGMA journal_mode = WAL;');
+console.log('Using database file:', dbPath);
 
 // Thin wrapper so the rest of the file can keep using the same
 // db.prepare(...).get/all/run(...) style as before.
@@ -53,7 +55,7 @@ CREATE TABLE IF NOT EXISTS items (
   location_id INTEGER REFERENCES locations(id),
   quantity INTEGER NOT NULL DEFAULT 0,
   min_quantity INTEGER NOT NULL DEFAULT 0,
-  unit TEXT DEFAULT 'pcs',
+  unit TEXT DEFAULT 'шт',
   notes TEXT,
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now'))
@@ -72,12 +74,12 @@ CREATE TABLE IF NOT EXISTS movements (
 const locCount = db.prepare('SELECT COUNT(*) c FROM locations').get().c;
 if (locCount === 0) {
   const ins = db.prepare('INSERT INTO locations (name) VALUES (?)');
-  ['Main Warehouse', 'Shelf A1', 'Shelf B2'].forEach(n => ins.run(n));
+  ['Большой склад', 'Стеллаж 1', 'Стеллаж 2'].forEach(n => ins.run(n));
 }
 const catCount = db.prepare('SELECT COUNT(*) c FROM categories').get().c;
 if (catCount === 0) {
   const ins = db.prepare('INSERT INTO categories (name) VALUES (?)');
-  ['Electronics', 'Office Supplies', 'Packaging', 'Tools'].forEach(n => ins.run(n));
+  ['Тележка', 'ПСН', 'КТИ', 'Климатика'].forEach(n => ins.run(n));
 }
 
 // ---------- HELPERS ----------
