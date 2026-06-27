@@ -40,7 +40,7 @@ async function api(path, opts = {}) {
 // ---------- DASHBOARD ----------
 async function loadDashboard() {
   const stats = await api('/stats');
-  document.getElementById('stat-items').textContent = stats.totalItems;
+  //document.getElementById('stat-items').textContent = stats.totalItems;
   document.getElementById('stat-units').textContent = stats.totalUnits;
   document.getElementById('stat-low').textContent = stats.lowStock;
   document.getElementById('stat-locations').textContent = stats.totalLocations;
