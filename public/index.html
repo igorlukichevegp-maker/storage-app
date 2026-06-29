@@ -1,85 +1,113 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Склад - ГТР</title>
+<title>Crate — Управление складом</title>
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-<div class="app">
+<!-- ЭКРАН ВХОДА -->
+<div class="login-screen" id="login-screen">
+  <form class="login-card" id="login-form">
+    <div class="brand" style="justify-content:center;margin-bottom:18px;">
+      <span class="brand-mark">
+        <img src="public/res/tmh.png" alt="TMH" />
+      </span>
+      <span class="brand-name">Storage</span>
+    </div>
+    <h1>Вход в систему</h1>
+    <p class="login-sub">Управление складом</p>
+    <label>Логин
+      <input type="text" id="login-username" autocomplete="username" required />
+    </label>
+    <label>Пароль
+      <input type="password" id="login-password" autocomplete="current-password" required />
+    </label>
+    <p class="login-error hidden" id="login-error"></p>
+    <button type="submit" class="btn primary" id="login-submit" style="width:100%;justify-content:center;">Войти</button>
+  </form>
+</div>
 
-  <!-- SIDEBAR -->
+<div class="app hidden" id="app-root">
+
+  <!-- БОКОВАЯ ПАНЕЛЬ -->
   <aside class="sidebar">
     <div class="brand">
-      <span class="brand-mark" >
-        <img src="./res/tmh.png" alt="Logo" />
-      </span>
-      <!--span class="brand-name">Crate</span-->
+      <span class="brand-mark">▦</span>
+      <span class="brand-name">Crate</span>
     </div>
     <nav class="nav">
       <button class="nav-btn active" data-view="dashboard">Обзор</button>
       <button class="nav-btn" data-view="inventory">Склад</button>
-      <button class="nav-btn" data-view="settings">Категории и расположение</button>
+      <button class="nav-btn" data-view="history">История движений</button>
+      <button class="nav-btn" data-view="settings">Категории и расположения</button>
     </nav>
-    <div class="sidebar-foot">SQLite • local file database</div>
+    <div class="sidebar-foot">
+      <div id="sidebar-user-info"></div>
+      <button class="btn small" id="btn-logout" style="margin-top:8px;width:100%;">Выйти</button>
+    </div>
   </aside>
 
-  <!-- MAIN -->
+  <!-- ОСНОВНАЯ ЧАСТЬ -->
   <main class="main">
 
-    <!-- DASHBOARD VIEW -->
+    <!-- ОБЗОР -->
     <section id="view-dashboard" class="view active">
       <header class="view-head">
-        <h1>ОБЗОР</h1>
-        <p>Здесь общее описание состава склада</p>
+        <h1>Обзор</h1>
+        <p>Краткая сводка о том, что сейчас на полках.</p>
       </header>
 
       <div class="stat-row">
-        <!--div class="stat-card">
+        <div class="stat-card">
           <span class="stat-num" id="stat-items">0</span>
-          <span class="stat-label">Item types</span>
-        </div-->
+          <span class="stat-label">Видов товаров</span>
+        </div>
         <div class="stat-card">
           <span class="stat-num" id="stat-units">0</span>
-          <span class="stat-label">Общее кол-во позиций на складе</span>
+          <span class="stat-label">Всего единиц на складе</span>
         </div>
         <div class="stat-card warn">
           <span class="stat-num" id="stat-low">0</span>
-          <span class="stat-label">Дефицит</span>
+          <span class="stat-label">Мало на складе</span>
         </div>
         <div class="stat-card">
           <span class="stat-num" id="stat-locations">0</span>
-          <span class="stat-label">Расположение</span>
+          <span class="stat-label">Мест хранения</span>
         </div>
       </div>
 
       <div class="panel">
         <div class="panel-head">
-          <h2>Позиции на складе</h2>
+          <h2>Требуется пополнение</h2>
         </div>
         <div id="low-stock-list" class="item-list"></div>
       </div>
     </section>
 
-    <!-- INVENTORY VIEW -->
+    <!-- СКЛАД -->
     <section id="view-inventory" class="view">
       <header class="view-head row">
         <div>
-          <h1>СКЛАД</h1>
-          <p>Описание всех позиций на складе</p>
+          <h1>Склад</h1>
+          <p>Все товары, которые вы храните, в одном месте.</p>
         </div>
-        <button class="btn primary" id="btn-add-item">+ Добавить позицию</button>
+        <div class="header-actions">
+          <button class="btn primary" id="btn-add-item">+ Добавить позицию</button>
+          <a class="btn" id="btn-export-excel" href="/api/export/excel">⬇ Экспорт в Excel</a>
+        </div>
       </header>
 
       <div class="toolbar">
-        <input type="search" id="search-input" placeholder="Поиск по нименованию или номеру заказа" />
+        <input type="search" id="search-input" placeholder="Поиск по названию или артикулу…" />
         <select id="filter-category"><option value="">Все категории</option></select>
         <select id="filter-location"><option value="">Все расположения</option></select>
+        <select id="filter-supplier"><option value="">Все поставщики</option></select>
         <label class="check">
           <input type="checkbox" id="filter-low" />
-          Только позиции в дефиците
+          Только товары с низким остатком
         </label>
       </div>
 
@@ -87,10 +115,11 @@
         <table class="item-table">
           <thead>
             <tr>
-              <th>Наименование</th>
-              <th>Номер заказа</th>
+              <th>Товар</th>
+              <th>Артикул</th>
               <th>Категория</th>
               <th>Расположение</th>
+              <th>Поставщик</th>
               <th>Количество</th>
               <th>Статус</th>
               <th></th>
@@ -98,23 +127,53 @@
           </thead>
           <tbody id="items-tbody"></tbody>
         </table>
-        <p id="empty-state" class="empty-state hidden">Нет позиций в базе данных</p>
+        <p id="empty-state" class="empty-state hidden">Подходящих товаров пока нет — добавьте первый, чтобы начать.</p>
       </div>
     </section>
 
-    <!-- SETTINGS VIEW -->
+    <!-- ИСТОРИЯ ДВИЖЕНИЙ -->
+    <section id="view-history" class="view">
+      <header class="view-head">
+        <h1>История движений</h1>
+        <p>Все изменения количества по каждой позиции: даты, причины и изменения.</p>
+      </header>
+
+      <div class="toolbar">
+        <input type="search" id="history-search" placeholder="Поиск по названию товара…" />
+      </div>
+
+      <div class="table-wrap">
+        <table class="item-table">
+          <thead>
+            <tr>
+              <th>Товар</th>
+              <th>Категория</th>
+              <th>Расположение</th>
+              <th>Поставщик</th>
+              <th>Изменение</th>
+              <th>Причина</th>
+              <th>Дата</th>
+            </tr>
+          </thead>
+          <tbody id="history-tbody"></tbody>
+        </table>
+        <p id="history-empty-state" class="empty-state hidden">Движений пока не было.</p>
+      </div>
+    </section>
+
+    <!-- НАСТРОЙКИ -->
     <section id="view-settings" class="view">
       <header class="view-head">
-        <h1>КАТЕГОРИИ И РАСПОЛОЖЕНИЯ</h1>
-        <p>Категории и места хранения. Можно создавать для собственных потребностей.</p>
+        <h1>Категории и расположения</h1>
+        <p>Метки и полки, по которым организован ваш склад.</p>
       </header>
 
       <div class="settings-grid">
         <div class="panel">
           <div class="panel-head"><h2>Категории</h2></div>
           <form id="form-category" class="inline-form">
-            <input type="text" id="input-category" placeholder="прим. ПСН" required />
-            <button class="btn" type="submit">Add</button>
+            <input type="text" id="input-category" placeholder="например, Канцелярия" required />
+            <button class="btn" type="submit">Добавить</button>
           </form>
           <ul id="category-list" class="tag-list"></ul>
         </div>
@@ -122,10 +181,20 @@
         <div class="panel">
           <div class="panel-head"><h2>Расположения</h2></div>
           <form id="form-location" class="inline-form">
-            <input type="text" id="input-location" placeholder="прим. Стеллаж 1, Коробка 2" required />
-            <button class="btn" type="submit">Add</button>
+            <input type="text" id="input-location" placeholder="например, Стеллаж 3, Ячейка 2" required />
+            <button class="btn" type="submit">Добавить</button>
           </form>
           <ul id="location-list" class="tag-list"></ul>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h2>Поставщики</h2></div>
+          <form id="form-supplier" class="inline-form">
+            <input type="text" id="input-supplier" placeholder="например, ООО «Поставщик»" required />
+            <input type="text" id="input-supplier-contact" placeholder="Контакт (необязательно)" />
+            <button class="btn" type="submit">Добавить</button>
+          </form>
+          <ul id="supplier-list" class="tag-list"></ul>
         </div>
       </div>
     </section>
@@ -133,7 +202,7 @@
   </main>
 </div>
 
-<!-- ADD / EDIT ITEM MODAL -->
+<!-- МОДАЛЬНОЕ ОКНО ДОБАВЛЕНИЯ / РЕДАКТИРОВАНИЯ ТОВАРА -->
 <div class="modal-backdrop hidden" id="item-modal">
   <div class="modal">
     <div class="modal-head">
@@ -142,15 +211,15 @@
     </div>
     <form id="item-form">
       <input type="hidden" id="item-id" />
-      <label>Наименование
-        <input type="text" id="item-name" required placeholder="прим. USB-C Cable 1м" />
+      <label>Название товара
+        <input type="text" id="item-name" required placeholder="например, Кабель USB-C 1м" />
       </label>
       <div class="form-row">
-        <label>Номер для заказа
-          <input type="text" id="item-sku" placeholder="прим. USB-C Cable 1м" />
+        <label>Артикул (необязательно)
+          <input type="text" id="item-sku" placeholder="например, USB-C-1M" />
         </label>
-        <label>Единицы
-          <input type="text" id="item-unit" placeholder="шт, м, кг…" value="pcs" />
+        <label>Единица измерения
+          <input type="text" id="item-unit" placeholder="шт, коробка, кг…" value="шт" />
         </label>
       </div>
       <div class="form-row">
@@ -162,15 +231,20 @@
         </label>
       </div>
       <div class="form-row">
-        <label id="qty-field">Количиество
+        <label>Поставщик
+          <select id="item-supplier"></select>
+        </label>
+        <label id="qty-field">Начальное количество
           <input type="number" id="item-quantity" min="0" value="0" />
         </label>
-        <label>Необходимый остаток
+      </div>
+      <div class="form-row">
+        <label>Порог низкого остатка
           <input type="number" id="item-min" min="0" value="0" />
         </label>
       </div>
-      <label>Примечания
-        <textarea id="item-notes" rows="2" placeholder="Описание позиции"></textarea>
+      <label>Заметки
+        <textarea id="item-notes" rows="2" placeholder="Всё, что стоит запомнить об этом товаре"></textarea>
       </label>
       <div class="modal-actions">
         <button type="button" class="btn" id="btn-cancel">Отмена</button>
@@ -180,11 +254,11 @@
   </div>
 </div>
 
-<!-- STOCK ADJUST MODAL -->
+<!-- МОДАЛЬНОЕ ОКНО ИЗМЕНЕНИЯ ОСТАТКА -->
 <div class="modal-backdrop hidden" id="adjust-modal">
   <div class="modal small">
     <div class="modal-head">
-      <h2>Настроить</h2>
+      <h2>Изменить остаток</h2>
       <button class="icon-btn" id="adjust-close">✕</button>
     </div>
     <p class="adjust-item-name" id="adjust-item-name"></p>
@@ -193,10 +267,49 @@
       <input type="number" id="adjust-amount" value="1" min="1" />
       <button type="button" class="btn" id="btn-plus">+</button>
     </div>
-    <input type="text" id="adjust-reason" placeholder="Причина" />
+    <input type="text" id="adjust-reason" placeholder="Причина (обязательно) — например, Использовано в заказе №102" required />
     <div class="modal-actions">
       <button type="button" class="btn" id="adjust-cancel">Отмена</button>
-      <button type="button" class="btn primary" id="adjust-confirm">Подтверждение</button>
+      <button type="button" class="btn primary" id="adjust-confirm">Подтвердить</button>
+    </div>
+  </div>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО УДАЛЕНИЯ ПОЗИЦИИ -->
+<div class="modal-backdrop hidden" id="delete-modal">
+  <div class="modal small">
+    <div class="modal-head">
+      <h2>Удалить позицию</h2>
+      <button class="icon-btn" id="delete-close">✕</button>
+    </div>
+    <p class="adjust-item-name" id="delete-item-name"></p>
+    <p style="color:var(--text-dim);font-size:13px;margin-top:-8px;margin-bottom:12px;">
+      Позиция будет скрыта со склада, но останется в истории движений.
+    </p>
+    <input type="text" id="delete-reason" placeholder="Причина удаления (обязательно)" required />
+    <div class="modal-actions">
+      <button type="button" class="btn" id="delete-cancel">Отмена</button>
+      <button type="button" class="btn danger" id="delete-confirm">Удалить</button>
+    </div>
+  </div>
+</div>
+
+<!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ КАТЕГОРИИ / РАСПОЛОЖЕНИЯ / ПОСТАВЩИКА -->
+<div class="modal-backdrop hidden" id="tag-edit-modal">
+  <div class="modal small">
+    <div class="modal-head">
+      <h2 id="tag-edit-title">Изменить</h2>
+      <button class="icon-btn" id="tag-edit-close">✕</button>
+    </div>
+    <label style="display:block;font-size:12.5px;color:var(--text-dim);margin-bottom:14px;font-weight:600;">Название
+      <input type="text" id="tag-edit-name" style="display:block;width:100%;margin-top:6px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:14px;" />
+    </label>
+    <label id="tag-edit-contact-field" style="display:block;font-size:12.5px;color:var(--text-dim);margin-bottom:14px;font-weight:600;">Контакт
+      <input type="text" id="tag-edit-contact" style="display:block;width:100%;margin-top:6px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:14px;" />
+    </label>
+    <div class="modal-actions">
+      <button type="button" class="btn" id="tag-edit-cancel">Отмена</button>
+      <button type="button" class="btn primary" id="tag-edit-save">Сохранить</button>
     </div>
   </div>
 </div>

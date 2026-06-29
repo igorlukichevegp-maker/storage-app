@@ -38,6 +38,23 @@ compile native C++ code on install — that's what was causing the
 Node's built-in `node:sqlite` module removes that dependency entirely, so `npm install`
 now only fetches plain JavaScript packages (Express, cors) and there's nothing to compile.
 
+## Авторизация
+В приложении два типа учётных записей:
+- **Администратор** — полный доступ: добавление, редактирование, удаление позиций, категорий, расположений, поставщиков.
+- **Пользователь** — только просмотр всех разделов и экспорт в Excel. Кнопки редактирования/удаления скрыты в интерфейсе, а сервер также блокирует эти действия напрямую — даже при попытке обратиться к API в обход интерфейса.
+
+**Стандартные учётные записи** (создаются автоматически при первом запуске на пустой базе):
+- Администратор: `admin` / `admin123`
+- Пользователь: `user` / `user123`
+
+**Важно — смените пароли перед использованием в реальной работе.** Сделать это можно через переменные окружения, заданные **до первого запуска** (на новой базе данных):
+- `ADMIN_USERNAME`, `ADMIN_PASSWORD`
+- `USER_USERNAME`, `USER_PASSWORD`
+
+На Render/Railway это добавляется в разделе Environment Variables. Если база уже создана со стандартными паролями, эти переменные не подействуют повторно — нужно либо удалить файл базы данных (если данные пока не важны), либо обратиться за помощью с обновлением пароля прямо в существующей базе.
+
+Также рекомендуется задать `SESSION_SECRET` — произвольную случайную строку, которая используется для защиты сессий входа.
+
 ## Put it online for free (optional)
 If you want a real URL instead of localhost, any of these free tiers work because
 SQLite needs no separate database service to provision:
